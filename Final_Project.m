@@ -1,57 +1,84 @@
+clear
+clc
 
-% Time parameters
-dt = 1e-5;                % Time step (s)
-T_end = 0.05;             % Total simulation time (s)
-t = 0:dt:T_end;           % Time vector
+% Set up range of times (x-axis)
+dt = 1e-5; % Difference between time values
+T_end = 0.1; % Total simulation time (s)
+t = 0:dt:T_end; % List of times
 
+C_bas = 1.104e-10; % Basolateral membrane capacitance
+% Calculated from Rattay et al. (1998) Table 1 and Appendix equations #8.
+% They state that total membrane capacitance = membrane surface area x 
+% specific membrane capacitance.
+% Thus, C_bas = (552 x 10e-12 m^2) x (0.2 F / m^2) = 1.104e-10 F.
 
+G_bas = 1.104e-10; % Basolateral membrane conductance
+% Calcuated from Rattay et al. (1998) Table 1 and Appendix equations #8.
+% They explain that total membrane capacitance = membrane surface area x 
+% specific membrane conductance. 
+% Thus, G_bas = C_bas = (552 x 10e-12 m^2) x (0.2 S / m^2) = 1.104e-10 S.
+% IMPORTANT: Note that it is entirely concidental that these two values are
+% the same, this is not a mistake.
 
-% Inner Hair Cell Parameters (from López-Poveda & Eustaquio-Martín, 2006, Table 1 - In Vivo)
-C_bas = 8.0e-12;          % Capacitance (F), Table 1: C_b
-G_bas = 0.33e-9;          % Basolateral leakage conductance (S), Table 1: G_b
-G_K = 30.72e-9;           % Fast potassium conductance (S), Table 1: G_K,f
-V_bas = -60e-3;           % Basolateral potential (V), assumed standard IHC resting value
-V_K = -78e-3;             % Potassium reversal potential (V), Table 1: E_K
+G_K = 28.71e-9; % Potassium conductance
+% From López-Poveda & Eustaquio-Martín (2006), Table 1.
+% They utilized a potassium conductance of G_1 = 28.71 nS.
 
-%{
+V_bas = -43e-3; % Basolateral membrane potential
+% From Rattay et al. (1998), Table 1.
+% They calculated the Nerst potential betweeen the cortilymph and cytoplasm
+% to be E_III = - 43 mV.
 
-% Inner Hair Cell Parameters (sources noted)
-C_bas = 11.0e-12;         % Capacitance (F) from Rattay et al. (1998)
-G_bas = 0.33e-9;          % Basolateral leakage conductance (S), from López-Poveda & Eustaquio-Martín (2006), Table 1
-G_K = 30.72e-9;           % Fast potassium conductance (S), from López-Poveda & Eustaquio-Martín (2006), Table 1
-V_bas = -60e-3;           % Basolateral potential (V), assumed standard IHC resting value, used in López-Poveda & Eustaquio-Martín (2006)and Rattay et al.(1998) 
-V_K = -78e-3;             % Potassium reversal potential (V), Table 1: E_K
-%V_K = -43e-3;             % Potassium reversal potential (V), from Rattay et al. (1998), Table I (E_III)
+V_K = -75e-3; % Potassium equilibrium potential   
+% From López-Poveda & Eustaquio-Martín (2006), Table 1.
+% They used a potassium reversal potential of E_K = - 75 mV.
 
-%}
-% Half-wave rectified stereocilia current (biologically inspired)
+A_stereo = 2.0e-9; % Stereocilia current amplitude
+% From López-Poveda & Eustaquio-Martín (2006), "Model Predictions" section.
+% This was the maximum stereocilia current amplitude they employed.
 
-% THIS IS WHAT IS BEING VARIED:
-f_stereo = 500;           % Test between 500 and 4000 Hz, supported by Dubno et al. (1989)
+freqs = [20, 500, 2000, 20000]; % Frequencies to simulate 
+% The range of human hearing is from 20 to 20,000 Hz, as stated in the
+% class neuron slide deck.
 
-A_stereo = 0.8e-9;       % 800 pA; López-Poveda et al. (2006) used 1–2000 pA sweeps
-J_stereo = A_stereo * sin(2 * pi * f_stereo * t);
-J_stereo(J_stereo < 0) = 0;  % Half-wave rectification to mimic MET directionality as in López-Poveda & Eustaquio-Martín (2006)
+for idx = 1:length(freqs)
+    freq = freqs(idx); % Get specific frequency
 
-J_K = 0.1e-9;             % Constant potassium current (A), small background current
+    J_stereo = A_stereo * sin(2 * pi * freq * t); % Current from stereocillia 
+    J_stereo(J_stereo < 0) = 0; % Half-wave rectification
+    % From López-Poveda & Eustaquio-Martín (2006), "Model Predictions"
+    % section.
+    % They state a half-wave rectification of sine waves is a good 
+    % approximation of the inner current of an IHC.
+    
+    J_K = 0.2e-9; % Outward potassium current
+    % This value was chosen empirically, as models such as López-Poveda & 
+    % Eustaquio-Martín (2006) describe an outward potassium current that 
+    % varies. (See equation #1 in the Appendix.)
+    % To simplify our model, we kept values as constants.
+    % This value was chosen because it is biologically feasible, based
+    % on other currents within the paper.
 
-% Initial membrane voltage
-V_mem = zeros(size(t));
-V_mem(1) = -60e-3;        % Initial condition (V), matches V_bas (used in both papers)
+    V_mem = zeros(size(t)); % Set up list of membrane voltages
+    V_mem(1) = -58e-3; % Initial membrane voltage
+    % From López-Poveda & Eustaquio-Martín (2006), Figure 7.
+    % They set V_m = -58 mV at the start of their model.
+    
+    % Euler method to determine membrane voltage (y-axis)
+    for i = 1:(length(t) - 1)
+        dVdt = (J_stereo(i) - G_bas * (V_mem(i) - V_bas) ...
+                - G_K * (V_mem(i) - V_K) + J_K) / C_bas;
+        V_mem(i+1) = V_mem(i) + dt * dVdt;
+    end
 
-% Euler Integration
-for i = 1:length(t)-1
-    dVdt = ( J_stereo(i) ...
-            - G_bas * (V_mem(i) - V_bas) ...
-            - G_K * (V_mem(i) - V_K) ...
-            + J_K ) / C_bas;
-    V_mem(i+1) = V_mem(i) + dt * dVdt;
+    % Graph results in subplot
+    subplot(2, 2, idx)
+    ms = t*1000; % Convert to ms
+    mV = V_mem*1000; % Convert to mV
+    plot(ms, mV, 'LineWidth', 1.2)
+    xlabel('Time (ms)')
+    ylabel('Membrane Voltage (mV)')
+    title(['f = ', num2str(freq), ' Hz'])
+    sgtitle('IHC Membrane Voltage Responses to Frequency Stimuli');
+    grid on
 end
-
-% Plotting
-figure
-plot(t*1000, V_mem*1000, 'b', 'LineWidth', 1.5)
-xlabel('Time (ms)')
-ylabel('Membrane Voltage (mV)')
-title('Inner Hair Cell V_{membrane} Response to Half-Wave Rectified J_{stereocilia}')
-grid on
