@@ -6,6 +6,13 @@ dt = 1e-5; % Difference between time values
 T_end = 0.08; % Total simulation time (s)
 t = 0:dt:T_end; % List of times
 
+C_bas = 1.104e-11; % Basolateral membrane capacitance
+% Calculated from Rattay et al. (1998) Table 1 and Appendix equations #8.
+% They explain that total membrane capacitance = membrane surface area x 
+% specific membrane capacitance.
+% C_bas = (552 µm^2) x (2 µF / cm^2)
+%       = (552 x 10e-12 m^2) x (0.02 F / m^2) = 1.104e-11 F.
+
 G_bas = 1.104e-9; % Basolateral membrane conductance
 % Calculated from Rattay et al. (1998) Table 1 and Appendix equations #8.
 % They state that total membrane conductance = membrane surface area x 
@@ -14,13 +21,6 @@ G_bas = 1.104e-9; % Basolateral membrane conductance
 % specific membrane resistance.
 % G_bas = (552 µm^2) / (5 kΩ m^2)
 %       = (552 x 10e-12 m^2) / (0.5 Ω m^2) = 1.104e-9 S.
-
-C_bas = 1.104e-11; % Basolateral membrane capacitance
-% Calculated from Rattay et al. (1998) Table 1 and Appendix equations #8.
-% They explain that total membrane capacitance = membrane surface area x 
-% specific membrane capacitance.
-% C_bas = (552 µm^2) x (2 µF / cm^2)
-%       = (552 x 10e-12 m^2) x (0.02 F / m^2) = 1.104e-11 F.
 
 G_K = 28.71e-9; % Potassium conductance
 % From López-Poveda & Eustaquio-Martín (2006), Table 1.
