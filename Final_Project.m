@@ -6,19 +6,21 @@ dt = 1e-5; % Difference between time values
 T_end = 0.1; % Total simulation time (s)
 t = 0:dt:T_end; % List of times
 
+G_bas = 1.104e-9; % Basolateral membrane conductance
+% Calculated from Rattay et al. (1998) Table 1 and Appendix equations #8.
+% They explain that total membrane capacitance = membrane surface area x 
+% specific membrane conductance. 
+% This is equivalent to membrane capacitance = membrane surface area / 
+% specific membrane resistance.
+% Once converted to SI units,
+% G_bas = (552 x 10e-12 m^2) / (0.5 ohm m^2) = 1.104e-10 S.
+
 C_bas = 1.104e-10; % Basolateral membrane capacitance
 % Calculated from Rattay et al. (1998) Table 1 and Appendix equations #8.
 % They state that total membrane capacitance = membrane surface area x 
 % specific membrane capacitance.
-% Thus, C_bas = (552 x 10e-12 m^2) x (0.2 F / m^2) = 1.104e-10 F.
-
-G_bas = 1.104e-10; % Basolateral membrane conductance
-% Calcuated from Rattay et al. (1998) Table 1 and Appendix equations #8.
-% They explain that total membrane capacitance = membrane surface area x 
-% specific membrane conductance. 
-% Thus, G_bas = C_bas = (552 x 10e-12 m^2) x (0.2 S / m^2) = 1.104e-10 S.
-% IMPORTANT: Note that it is entirely concidental that these two values are
-% the same, this is not a mistake.
+% Once converted to SI units, 
+% C_bas = (552 x 10e-12 m^2) x (0.2 F / m^2) = 1.104e-10 F.
 
 G_K = 28.71e-9; % Potassium conductance
 % From López-Poveda & Eustaquio-Martín (2006), Table 1.
@@ -26,7 +28,7 @@ G_K = 28.71e-9; % Potassium conductance
 
 V_bas = -43e-3; % Basolateral membrane potential
 % From Rattay et al. (1998), Table 1.
-% They calculated the Nerst potential betweeen the cortilymph and cytoplasm
+% They calculated the Nernst potential between the cortilymph and cytoplasm
 % to be E_III = - 43 mV.
 
 V_K = -75e-3; % Potassium equilibrium potential   
@@ -37,14 +39,14 @@ A_stereo = 2.0e-9; % Stereocilia current amplitude
 % From López-Poveda & Eustaquio-Martín (2006), "Model Predictions" section.
 % This was the maximum stereocilia current amplitude they employed.
 
-freqs = [20, 500, 2000, 20000]; % Frequencies to simulate 
+freqs = [20, 200, 2000, 20000]; % Frequencies to simulate 
 % The range of human hearing is from 20 to 20,000 Hz, as stated in the
 % class neuron slide deck.
 
 for idx = 1:length(freqs)
     freq = freqs(idx); % Get specific frequency
 
-    J_stereo = A_stereo * sin(2 * pi * freq * t); % Current from stereocillia 
+    J_stereo = A_stereo * sin(2 * pi * freq * t); % Current from stereocilia
     J_stereo(J_stereo < 0) = 0; % Half-wave rectification
     % From López-Poveda & Eustaquio-Martín (2006), "Model Predictions"
     % section.
