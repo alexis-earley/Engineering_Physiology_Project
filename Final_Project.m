@@ -3,24 +3,24 @@ clc
 
 % Set up range of times (x-axis)
 dt = 1e-5; % Difference between time values
-T_end = 0.1; % Total simulation time (s)
+T_end = 0.08; % Total simulation time (s)
 t = 0:dt:T_end; % List of times
 
 G_bas = 1.104e-9; % Basolateral membrane conductance
 % Calculated from Rattay et al. (1998) Table 1 and Appendix equations #8.
-% They explain that total membrane conductance = membrane surface area x 
-% specific membrane conductance. 
+% They state that total membrane conductance = membrane surface area x 
+% specific membrane conductance.
 % This is equivalent to membrane conductance = membrane surface area / 
 % specific membrane resistance.
-% Once converted to SI units,
-% G_bas = (552 x 10e-12 m^2) / (0.5 ohm m^2) = 1.104e-9 S.
+% G_bas = (552 µm^2) / (5 kΩ m^2)
+%       = (552 x 10e-12 m^2) / (0.5 Ω m^2) = 1.104e-9 S.
 
-C_bas = 1.104e-10; % Basolateral membrane capacitance
+C_bas = 1.104e-11; % Basolateral membrane capacitance
 % Calculated from Rattay et al. (1998) Table 1 and Appendix equations #8.
-% They state that total membrane capacitance = membrane surface area x 
+% They explain that total membrane capacitance = membrane surface area x 
 % specific membrane capacitance.
-% Once converted to SI units, 
-% C_bas = (552 x 10e-12 m^2) x (0.2 F / m^2) = 1.104e-10 F.
+% C_bas = (552 µm^2) x (2 µF / cm^2)
+%       = (552 x 10e-12 m^2) x (0.02 F / m^2) = 1.104e-11 F.
 
 G_K = 28.71e-9; % Potassium conductance
 % From López-Poveda & Eustaquio-Martín (2006), Table 1.
@@ -72,15 +72,20 @@ for idx = 1:length(freqs)
                 - G_K * (V_mem(i) - V_K) + J_K) / C_bas;
         V_mem(i+1) = V_mem(i) + dt * dVdt;
     end
-
-    % Graph results in subplot
+    
+    % Create graph
     subplot(2, 2, idx)
     ms = t*1000; % Convert to ms
     mV = V_mem*1000; % Convert to mV
-    plot(ms, mV, 'LineWidth', 1.2)
+    plot(ms, mV, 'b', 'LineWidth', 1) % Plot graph
+    hold on
+    plot(ms(1), mV(1), 'bx', 'MarkerSize', 6) % Plot starting point
+
+    % Label graph and standardize axes 
     xlabel('Time (ms)')
     ylabel('Membrane Voltage (mV)')
     title(['f = ', num2str(freq), ' Hz'])
     sgtitle('IHC Membrane Voltage Responses to Frequency Stimuli');
+    ylim([-70 10]);
     grid on
 end
