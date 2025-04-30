@@ -80,8 +80,8 @@ for idx = 1:length(freqs)
     
     % Create graph
     subplot(2, 2, idx)
-    ms = t*1000; % Convert to ms
-    mV = V_mem*1000; % Convert to mV
+    ms = t * 1000; % Convert to ms
+    mV = V_mem * 1000; % Convert to mV
     plot(ms, mV, 'b', 'LineWidth', 1) % Plot graph
     hold on
     plot(ms(1), mV(1), 'bx', 'MarkerSize', 6) % Plot starting point
@@ -91,7 +91,7 @@ for idx = 1:length(freqs)
     ylabel('Membrane Voltage (mV)')
     title(['f = ', num2str(freq), ' Hz'])
     sgtitle('IHC Membrane Voltage Responses to Frequency Stimuli');
-    ylim([-70 10]);
+    ylim([-70, 10]);
     grid on
 
     % Add subplot label to top-left
