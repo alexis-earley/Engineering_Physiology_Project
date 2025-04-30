@@ -8,12 +8,12 @@ t = 0:dt:T_end; % List of times
 
 G_bas = 1.104e-9; % Basolateral membrane conductance
 % Calculated from Rattay et al. (1998) Table 1 and Appendix equations #8.
-% They explain that total membrane capacitance = membrane surface area x 
+% They explain that total membrane conductance = membrane surface area x 
 % specific membrane conductance. 
-% This is equivalent to membrane capacitance = membrane surface area / 
+% This is equivalent to membrane conductance = membrane surface area / 
 % specific membrane resistance.
 % Once converted to SI units,
-% G_bas = (552 x 10e-12 m^2) / (0.5 ohm m^2) = 1.104e-10 S.
+% G_bas = (552 x 10e-12 m^2) / (0.5 ohm m^2) = 1.104e-9 S.
 
 C_bas = 1.104e-10; % Basolateral membrane capacitance
 % Calculated from Rattay et al. (1998) Table 1 and Appendix equations #8.
