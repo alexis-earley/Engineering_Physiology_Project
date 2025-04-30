@@ -43,6 +43,8 @@ freqs = [20, 200, 2000, 20000]; % Frequencies to simulate
 % The range of human hearing is from 20 to 20,000 Hz, as stated in the
 % class neuron slide deck.
 
+labels = {'(a)', '(b)', '(c)', '(d)'}; % Subplot labels
+
 for idx = 1:length(freqs)
     freq = freqs(idx); % Get specific frequency
 
@@ -66,7 +68,10 @@ for idx = 1:length(freqs)
     % From López-Poveda & Eustaquio-Martín (2006), Figure 7.
     % They set V_m = -58 mV at the start of their model.
     
-    % Euler method to determine membrane voltage (y-axis)
+    % Below is the Euler method to determine membrane voltage (y-axis).
+    % This differential equation is based upon our circuit model.
+    % Note that this circuit model was inspired by Rattay et al. (1998), 
+    % Fig. 2.
     for i = 1:(length(t) - 1)
         dVdt = (J_stereo(i) - G_bas * (V_mem(i) - V_bas) ...
                 - G_K * (V_mem(i) - V_K) + J_K) / C_bas;
@@ -88,4 +93,7 @@ for idx = 1:length(freqs)
     sgtitle('IHC Membrane Voltage Responses to Frequency Stimuli');
     ylim([-70 10]);
     grid on
+
+    % Add subplot label to top-left
+    text(ms(1) + 1, 8, labels{idx}, 'FontSize', 16, 'FontWeight', 'bold');
 end
